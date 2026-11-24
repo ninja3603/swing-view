@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#080D1A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SWING QUANT 3.0</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background: #080D1A; overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif;
+    }
+    iframe {
+      border: 0; width: 100%; height: 100dvh; display: block; background: #080D1A;
+    }
+    .msg {
+      color: #94A3B8; text-align: center; padding: 40vh 20px 0; font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="app" allowfullscreen></iframe>
+  <div id="msg" class="msg" style="display:none;">알림 링크를 통해 접속해 주세요.</div>
+  <script>
+    const raw = location.hash ? location.hash.slice(1) : (new URLSearchParams(location.search).get("u") || "");
+    const target = decodeURIComponent(raw).trim();
+    if (target.startsWith("https://script.google.com/macros/s/")) {
+      document.getElementById("app").src = target;
+    } else {
+      document.getElementById("app").style.display = "none";
+      document.getElementById("msg").style.display = "block";
+    }
+  </script>
+</body>
+</html>
