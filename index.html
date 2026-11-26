@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#080D1A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>SWING QUANT 3.0</title>
+<title>SWING QUANT 4.1</title>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
@@ -73,6 +73,7 @@
   .badge { font-size: 14px; font-weight: 800; padding: 5px 12px; border-radius: 9px; }
   .badge-buy { background: #6E2434; color: #FFE4E6; border: 1.5px solid #FB7185; }
   .badge-standby { background: #12304D; color: #BAE6FD; border: 1.5px solid #38BDF8; }
+  .badge-count { background: #1E293B; color: #FBBF24; border: 1px solid #475569; font-size: 13px; padding: 4px 10px; border-radius: 999px; font-weight: 800; }
 
   .standby-main { font-size: 24px; font-weight: 800; color: #F8FAFC; margin-top: 4px; }
   .standby-sub { font-size: 15px; color: #94A3B8; margin-top: 6px; }
@@ -91,6 +92,32 @@
   .m-lbl { font-size: 13px; color: #94A3B8; }
   .m-val { font-size: 18px; font-weight: 800; margin-top: 5px; }
   .sig-divider { height: 1px; background: rgba(255,255,255,0.14); margin: 16px 0; }
+
+  /* 1차 정량 통과 카드 */
+  .s1-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .s1-list { display: flex; flex-direction: column; gap: 10px; }
+  .s1-item {
+    background: #16223B; border: 1px solid #26385E;
+    border-radius: 14px; padding: 14px;
+  }
+  .s1-row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .s1-name { font-size: 20px; font-weight: 800; color: #F8FAFC; }
+  .s1-sec { font-size: 14px; color: #94A3B8; flex-shrink: 0; }
+  .s1-row2 { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; }
+  .s1-price { font-size: 19px; font-weight: 800; }
+  .s1-chg { font-size: 16px; font-weight: 800; margin-left: 4px; }
+  .s1-rs { font-size: 15px; font-weight: 800; color: #38BDF8; }
+  .s1-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .s1-tag {
+    background: #0C1324; border: 1px solid #223250; color: #CBD5E1;
+    font-size: 13px; font-weight: 700; padding: 4px 8px; border-radius: 8px;
+  }
+  .s1-status {
+    margin-top: 10px; padding: 7px 10px; border-radius: 9px;
+    font-size: 13.5px; font-weight: 800; display: inline-block;
+  }
+  .s1-status.pass { background: #0E2925; color: #6EE7B7; border: 1px solid #1F5E52; }
+  .s1-status.block { background: #2A151B; color: #FCA5A5; border: 1px solid #6E2330; }
 
   .mb-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .card-title { font-size: 19px; font-weight: 800; color: #F8FAFC; }
@@ -119,7 +146,7 @@
   .w-left { display: flex; align-items: center; gap: 8px; }
   .rank-pill { background: #1B3459; color: #38BDF8; font-size: 14px; font-weight: 800; padding: 3px 9px; border-radius: 8px; }
   .w-name { font-size: 20px; font-weight: 800; }
-  .w-sec { font-size: 14px; color: #64748B; }
+  .w-sec { font-size: 14px; color: #94A3B8; }
   .w-row2 { display: flex; justify-content: space-between; align-items: baseline; margin-top: 9px; }
   .w-price { font-size: 20px; font-weight: 800; }
   .w-chg { font-size: 17px; font-weight: 800; margin-left: 4px; }
@@ -158,7 +185,7 @@
 <body>
 <div id="root">
   <div class="status-box">
-    <div class="status-title">SWING QUANT 3.0</div>
+    <div class="status-title">SWING QUANT 4.1</div>
     <div class="status-desc">최신 시장 데이터를 불러오는 중...</div>
   </div>
 </div>
@@ -179,9 +206,9 @@ function fmtNum(n, dec) {
   });
 }
 
-function fmtChg(n) {
+function fmtChg(n, dec = 2) {
   const v = Number(n || 0);
-  return (v > 0 ? "+" : "") + v.toFixed(2) + "%";
+  return (v > 0 ? "+" : "") + v.toFixed(dec) + "%";
 }
 
 function chgCls(n) {
@@ -213,16 +240,20 @@ function getTargetUrl() {
 
 function renderDashboard(st) {
   const mode = st.mode || "close";
+  const verLabel = (st.version || "Ver 4.1").replace(/^Ver\s*/i, "");
   const m = st.macro || {};
   const riskPct = Number(m.risk_pct || 0);
+  const maxRiskPct = 2.5;
+
   const buySignals = Array.isArray(st.buy_signals) ? st.buy_signals : [];
+  const stage1Passed = Array.isArray(st.stage1_passed) ? st.stage1_passed : [];
   const watchTop3 = Array.isArray(st.watch_top3) ? st.watch_top3 : [];
   const headlines = Array.isArray(st.headlines) ? st.headlines : [];
   const holdReports = Array.isArray(st.hold_reports) ? st.hold_reports : [];
 
   let activeIdx = 0, stWord = "방어", stSub = "전면 차단", stColor = "#EF4444", gaugePct = 5;
   let warnBg = "#2A151B", warnBd = "#6E2330", warnTxt = "#FCA5A5";
-  if (riskPct >= 0.9) {
+  if (riskPct >= maxRiskPct - 0.05) {
     activeIdx = 2; stWord = "정상"; stSub = "정상 가동"; stColor = "#10B981"; gaugePct = 100;
     warnBg = "#0E2925"; warnBd = "#1F5E52"; warnTxt = "#6EE7B7";
   } else if (riskPct > 0) {
@@ -230,6 +261,7 @@ function renderDashboard(st) {
     warnBg = "#262015"; warnBd = "#5C4720"; warnTxt = "#FBBF24";
   }
 
+  // 1) SIGNAL 영역 (마감 모드)
   let signalHtml = "";
   if (mode === "close") {
     if (buySignals.length > 0) {
@@ -237,7 +269,7 @@ function renderDashboard(st) {
         <div class="sig-item">
           <div class="sig-stock-row">
             <span class="sig-name">${esc(s.name)}</span>
-            <span class="sig-code">${esc(s.ticker || s.sector || "")}</span>
+            <span class="sig-code">${esc(s.sector || s.ticker || "")}</span>
           </div>
           <div class="sig-price-row">
             <span class="sig-price">${fmtNum(s.price, 0)}원</span>
@@ -253,8 +285,8 @@ function renderDashboard(st) {
               <div class="m-val coral">${fmtNum(s.stop, 0)}원</div>
             </div>
             <div class="sig-metric">
-              <div class="m-lbl">수급 점수</div>
-              <div class="m-val cyan">${Number(s.supply_score || 0) >= 0 ? "+" : ""}${Number(s.supply_score || 0).toFixed(1)}점</div>
+              <div class="m-lbl">RS 점수</div>
+              <div class="m-val cyan">${Number(s.supply_score || 0).toFixed(0)}점</div>
             </div>
           </div>
         </div>`).join('<div class="sig-divider"></div>');
@@ -263,14 +295,14 @@ function renderDashboard(st) {
         <section class="card glow-buy">
           <div class="sig-head">
             <div class="sig-title-wrap"><span class="led led-buy"></span><span class="sig-head-txt buy-txt">BUY SIGNAL</span></div>
-            <span class="badge badge-buy">A·B·C PASS</span>
+            <span class="badge badge-buy">T·RS·A·C PASS</span>
           </div>
           ${itemsHtml}
         </section>`;
     } else {
       const standbyReason = riskPct <= 0
         ? "매크로 방어 모드 가동 · 신규 매수 전면 차단"
-        : "조건 A·B·C 동시 충족 없음 · 기존 포지션 래칫 유지";
+        : "조건 T·RS·A·C 동시 충족 없음 · 기존 포지션 래칫 유지";
       signalHtml = `
         <section class="card glow-standby">
           <div class="sig-head">
@@ -283,12 +315,50 @@ function renderDashboard(st) {
     }
   }
 
+  // 2) 1차 정량 통과 후보 카드 (T + RS + A + C 통과 종목 상세)
+  let stage1Html = "";
+  if (mode === "close" && stage1Passed.length > 0) {
+    const s1Items = stage1Passed.map(s => {
+      const isPass = String(s.status || "").includes("최종 매수 통과");
+      const statusCls = isPass ? "pass" : "block";
+      const statusTxt = isPass ? "최종 매수 통과" : `2차 차단: ${s.status}`;
+      return `
+        <div class="s1-item">
+          <div class="s1-row1">
+            <span class="s1-name">${esc(s.name)}</span>
+            <span class="s1-sec">${esc(s.sector || "")}</span>
+          </div>
+          <div class="s1-row2">
+            <div><span class="s1-price">${fmtNum(s.price, 0)}원</span> <span class="s1-chg ${chgCls(s.chg)}">${fmtChg(s.chg)}</span></div>
+            <span class="s1-rs">RS ${Number(s.rs || 0).toFixed(0)}점</span>
+          </div>
+          <div class="s1-tags">
+            <span class="s1-tag">60일선>120일선(T)</span>
+            <span class="s1-tag">60일 ${fmtChg(s.ret60, 1)}(RS)</span>
+            <span class="s1-tag">주황신호(A)</span>
+            <span class="s1-tag">거래대금 ${Number(s.turnover_ratio || 0).toFixed(2)}배(C)</span>
+          </div>
+          <div class="s1-status ${statusCls}">${esc(statusTxt)}</div>
+        </div>`;
+    }).join("");
+
+    stage1Html = `
+      <section class="card">
+        <div class="s1-head">
+          <div class="card-title">1차 정량 통과 (T·RS·A·C)</div>
+          <span class="badge-count">${stage1Passed.length}건</span>
+        </div>
+        <div class="s1-list">${s1Items}</div>
+      </section>`;
+  }
+
+  // 3) 하단 섹션 (마감: 관심 TOP 3 / 모닝: 헤드라인 + DART)
   let bottomHtml = "";
   if (mode === "close" && watchTop3.length > 0) {
-    const maxScore = Math.max(50, ...watchTop3.map(w => Math.abs(Number(w.supply_score || 0))));
     const wItems = watchTop3.slice(0, 3).map((w, idx) => {
-      const sc = Number(w.supply_score || 0);
-      const barW = sc > 0 ? Math.max(8, Math.min(100, Math.round((sc / maxScore) * 100))) : 0;
+      const rs = Number(w.supply_score || 0);
+      const ret60 = Number(w.breakout || 0);
+      const barW = Math.max(8, Math.min(100, Math.round(rs)));
       return `
         <div class="w-item">
           <div class="w-row1">
@@ -297,10 +367,10 @@ function renderDashboard(st) {
           </div>
           <div class="w-row2">
             <div><span class="w-price">${fmtNum(w.price, 0)}원</span> <span class="w-chg ${chgCls(w.chg)}">${fmtChg(w.chg)}</span></div>
-            <span class="w-sup">수급 ${sc >= 0 ? "+" : ""}${sc.toFixed(1)}점</span>
+            <span class="w-sup">RS ${rs.toFixed(0)}점</span>
           </div>
           <div class="w-row3">
-            <span class="w-brk">40일 돌파 ${Number(w.breakout || 0)}회</span>
+            <span class="w-brk">60일 수익 ${fmtChg(ret60, 1)}</span>
             <div class="bar-track"><div class="bar-fill" style="width:${barW}%"></div></div>
           </div>
         </div>`;
@@ -316,7 +386,7 @@ function renderDashboard(st) {
       .slice(0, 3)
       .map(h => `<li>${esc(h)}</li>`).join("");
     const dartLine = st.dart_summary
-      ? `<div class="dart-strip">DART 악재 <b>${st.dart_summary.fatal}종목</b> · 14일 내 어닝 임박 <b>${st.dart_summary.earn}종목</b></div>`
+      ? `<div class="dart-strip">보유종목 DART 악재 <b>${st.dart_summary.fatal}건</b> · 어닝 임박 <b>${st.dart_summary.earn}건</b></div>`
       : "";
     bottomHtml = `
       <section class="card">
@@ -344,7 +414,7 @@ function renderDashboard(st) {
     <section class="card">
       <div class="top-row">
         <div>
-          <div class="brand">SWING QUANT 3.0</div>
+          <div class="brand">SWING QUANT ${esc(verLabel)}</div>
           <div class="ts">${esc(st.timestamp_str || "")} · ${modeLabel}</div>
         </div>
         <div class="traffic-pill">
@@ -356,7 +426,7 @@ function renderDashboard(st) {
       </div>
       <div class="risk-row">
         <span class="risk-lbl">리스크 허용 (${stSub})</span>
-        <span class="risk-val" style="color:${stColor}">${riskPct.toFixed(1)}% / 1.0%</span>
+        <span class="risk-val" style="color:${stColor}">${riskPct.toFixed(2)}% / ${maxRiskPct.toFixed(1)}%</span>
       </div>
       <div class="gauge-track"><div class="gauge-fill" style="width:${gaugePct}%;background:${stColor};box-shadow:0 0 12px ${stColor};"></div></div>
       <div class="warn-box" style="background:${warnBg};border-color:${warnBd};color:${warnTxt};">
@@ -366,6 +436,7 @@ function renderDashboard(st) {
     </section>
 
     ${signalHtml}
+    ${stage1Html}
 
     <section class="card">
       <div class="mb-head">
@@ -400,7 +471,7 @@ function renderDashboard(st) {
     ${bottomHtml}
 
     <div class="footer">
-      <span>SWING QUANT BOT VER 3.0</span>
+      <span>SWING QUANT BOT VER ${esc(verLabel)}</span>
       <button class="refresh-btn" onclick="loadDashboard()">새로고침</button>
     </div>
   </div>`;
