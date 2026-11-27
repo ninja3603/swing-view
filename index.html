@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#080D1A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>SWING QUANT 4.1</title>
+<title>SWING QUANT 4.2</title>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
@@ -62,7 +62,7 @@
     border: 2px solid #38BDF8;
     box-shadow: 0 0 20px rgba(56,189,248,0.30), inset 0 1px 0 rgba(125,211,252,0.55);
   }
-  .sig-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .sig-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
   .sig-title-wrap { display: flex; align-items: center; gap: 9px; }
   .led { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
   .led-buy { background: #FB7185; box-shadow: 0 0 12px 3px rgba(251,113,133,0.85); }
@@ -70,47 +70,63 @@
   .sig-head-txt { font-size: 17px; font-weight: 800; letter-spacing: 0.3px; }
   .buy-txt { color: #FB7185; }
   .standby-txt { color: #7DD3FC; }
-  .badge { font-size: 14px; font-weight: 800; padding: 5px 12px; border-radius: 9px; }
+  .badge { font-size: 13px; font-weight: 800; padding: 5px 11px; border-radius: 9px; white-space: nowrap; }
   .badge-buy { background: #6E2434; color: #FFE4E6; border: 1.5px solid #FB7185; }
   .badge-standby { background: #12304D; color: #BAE6FD; border: 1.5px solid #38BDF8; }
-  .badge-count { background: #1E293B; color: #FBBF24; border: 1px solid #475569; font-size: 13px; padding: 4px 10px; border-radius: 999px; font-weight: 800; }
+  .badge-count { background: #1E293B; color: #FBBF24; border: 1px solid #475569; font-size: 13px; padding: 4px 10px; border-radius: 999px; font-weight: 800; white-space: nowrap; }
+
+  /* 엔진별 배지 (E1 주도 / E2 초입 / E3 항복) */
+  .eng-pill {
+    font-size: 12.5px; font-weight: 800; padding: 3px 8px; border-radius: 7px;
+    display: inline-block; vertical-align: middle; flex-shrink: 0;
+  }
+  .eng-e1 { background: #0C3559; color: #7DD3FC; border: 1px solid #38BDF8; }
+  .eng-e2 { background: #2D1F5E; color: #DDD6FE; border: 1px solid #A78BFA; }
+  .eng-e3 { background: #4A250B; color: #FDE68A; border: 1px solid #F59E0B; }
 
   .standby-main { font-size: 24px; font-weight: 800; color: #F8FAFC; margin-top: 4px; }
   .standby-sub { font-size: 15px; color: #94A3B8; margin-top: 6px; }
 
-  .sig-stock-row { display: flex; align-items: baseline; gap: 8px; }
-  .sig-name { font-size: 28px; font-weight: 800; }
-  .sig-code { font-size: 16px; color: #94A3B8; }
+  .sig-stock-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .sig-name { font-size: 26px; font-weight: 800; }
+  .sig-code { font-size: 15px; color: #94A3B8; }
   .sig-price-row { display: flex; align-items: baseline; gap: 10px; margin: 6px 0 14px; }
-  .sig-price { font-size: 27px; font-weight: 800; }
-  .sig-chg { font-size: 21px; font-weight: 800; }
+  .sig-price { font-size: 26px; font-weight: 800; }
+  .sig-chg { font-size: 20px; font-weight: 800; }
   .sig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .sig-metric {
     background: rgba(12,19,36,0.92); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 12px; padding: 11px 6px; text-align: center;
   }
-  .m-lbl { font-size: 13px; color: #94A3B8; }
-  .m-val { font-size: 18px; font-weight: 800; margin-top: 5px; }
+  .m-lbl { font-size: 12.5px; color: #94A3B8; }
+  .m-val { font-size: 17px; font-weight: 800; margin-top: 5px; }
+  .oco-note {
+    margin-top: 10px; padding: 8px 11px; border-radius: 10px;
+    background: rgba(245,158,11,0.14); border: 1px solid rgba(245,158,11,0.45);
+    color: #FDE68A; font-size: 13px; font-weight: 700;
+  }
   .sig-divider { height: 1px; background: rgba(255,255,255,0.14); margin: 16px 0; }
 
   /* 1차 정량 통과 카드 */
-  .s1-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .s1-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+  .s1-summary { font-size: 13px; color: #94A3B8; margin-bottom: 12px; font-weight: 700; }
   .s1-list { display: flex; flex-direction: column; gap: 10px; }
   .s1-item {
     background: #16223B; border: 1px solid #26385E;
     border-radius: 14px; padding: 14px;
   }
-  .s1-row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .s1-name { font-size: 20px; font-weight: 800; color: #F8FAFC; }
-  .s1-sec { font-size: 14px; color: #94A3B8; flex-shrink: 0; }
+  .s1-row1 { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .s1-left { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .s1-name { font-size: 19px; font-weight: 800; color: #F8FAFC; }
+  .s1-sec { font-size: 13.5px; color: #94A3B8; flex-shrink: 0; }
   .s1-row2 { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; }
-  .s1-price { font-size: 19px; font-weight: 800; }
-  .s1-chg { font-size: 16px; font-weight: 800; margin-left: 4px; }
-  .s1-rs { font-size: 15px; font-weight: 800; color: #38BDF8; }
+  .s1-price { font-size: 18px; font-weight: 800; }
+  .s1-chg { font-size: 15.5px; font-weight: 800; margin-left: 4px; }
+  .s1-rs { font-size: 14.5px; font-weight: 800; color: #38BDF8; }
   .s1-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
   .s1-tag {
     background: #0C1324; border: 1px solid #223250; color: #CBD5E1;
-    font-size: 13px; font-weight: 700; padding: 4px 8px; border-radius: 8px;
+    font-size: 12.5px; font-weight: 700; padding: 4px 8px; border-radius: 8px;
   }
   .s1-status {
     margin-top: 10px; padding: 7px 10px; border-radius: 9px;
@@ -171,6 +187,7 @@
   .green { color: #34D399; }
   .coral { color: #FB7185; }
   .cyan { color: #38BDF8; }
+  .amber { color: #FBBF24; }
 
   .footer {
     display: flex; justify-content: space-between; align-items: center;
@@ -185,7 +202,7 @@
 <body>
 <div id="root">
   <div class="status-box">
-    <div class="status-title">SWING QUANT 4.1</div>
+    <div class="status-title">SWING QUANT 4.2</div>
     <div class="status-desc">최신 시장 데이터를 불러오는 중...</div>
   </div>
 </div>
@@ -216,6 +233,16 @@ function chgCls(n) {
   return v > 0 ? "up" : (v < 0 ? "down" : "flat");
 }
 
+function getEngineInfo(engKey, engLabel) {
+  if (engKey === "E3_Y5") return { cls: "eng-e3", label: engLabel || "E3 항복" };
+  if (engKey === "E2_CF1") return { cls: "eng-e2", label: engLabel || "E2 초입" };
+  return { cls: "eng-e1", label: engLabel || "E1 주도" };
+}
+
+function stripEnginePrefix(name) {
+  return String(name || "").replace(/^\[E\d\]\s*/, "");
+}
+
 function showMsg(title, desc) {
   root.innerHTML = `<div class="status-box">
     <div class="status-title">${esc(title)}</div>
@@ -238,12 +265,41 @@ function getTargetUrl() {
   return "";
 }
 
+function renderStage1Tags(s) {
+  const eng = s.engine || "E1_RS15";
+  if (eng === "E2_CF1") {
+    const ddTag = (s.dd52 !== undefined && s.dd52 !== null)
+      ? `<span class="s1-tag">52주고점 ${fmtChg(s.dd52, 1)}(F1)</span>`
+      : "";
+    return `
+      <span class="s1-tag">초입돌파·대금 ${Number(s.turnover_ratio || 0).toFixed(2)}배(C)</span>
+      ${ddTag}
+      <span class="s1-tag">60일 ${fmtChg(s.ret60, 1)}(F1)</span>
+      <span class="s1-tag">>120일선(F1)</span>`;
+  }
+  if (eng === "E3_Y5") {
+    const mcapTag = (s.mcap_jo !== undefined && s.mcap_jo !== null && Number(s.mcap_jo) > 0)
+      ? `<span class="s1-tag">시총 ${Number(s.mcap_jo).toFixed(1)}조</span>`
+      : `<span class="s1-tag">시총 3조+</span>`;
+    return `
+      ${mcapTag}
+      <span class="s1-tag">5일 연속 하락</span>
+      <span class="s1-tag">60일 ${fmtChg(s.ret60, 1)}</span>
+      <span class="s1-tag">당일 ${fmtChg(s.chg, 2)}</span>`;
+  }
+  return `
+    <span class="s1-tag">60일선>120일선(T)</span>
+    <span class="s1-tag">60일 ${fmtChg(s.ret60, 1)}(RS)</span>
+    <span class="s1-tag">주황신호(A)</span>
+    <span class="s1-tag">거래대금 ${Number(s.turnover_ratio || 0).toFixed(2)}배(C)</span>`;
+}
+
 function renderDashboard(st) {
   const mode = st.mode || "close";
-  const verLabel = (st.version || "Ver 4.1").replace(/^Ver\s*/i, "");
+  const verLabel = (st.version || "Ver 4.2").replace(/^Ver\s*/i, "");
   const m = st.macro || {};
   const riskPct = Number(m.risk_pct || 0);
-  const maxRiskPct = 2.5;
+  const maxRiskPct = Number(m.base_risk_pct || 2.5);
 
   const buySignals = Array.isArray(st.buy_signals) ? st.buy_signals : [];
   const stage1Passed = Array.isArray(st.stage1_passed) ? st.stage1_passed : [];
@@ -251,7 +307,7 @@ function renderDashboard(st) {
   const headlines = Array.isArray(st.headlines) ? st.headlines : [];
   const holdReports = Array.isArray(st.hold_reports) ? st.hold_reports : [];
 
-  let activeIdx = 0, stWord = "방어", stSub = "전면 차단", stColor = "#EF4444", gaugePct = 5;
+  let activeIdx = 0, stWord = "방어", stSub = "추세 차단 · E3 예외", stColor = "#EF4444", gaugePct = 5;
   let warnBg = "#2A151B", warnBd = "#6E2330", warnTxt = "#FCA5A5";
   if (riskPct >= maxRiskPct - 0.05) {
     activeIdx = 2; stWord = "정상"; stSub = "정상 가동"; stColor = "#10B981"; gaugePct = 100;
@@ -261,14 +317,29 @@ function renderDashboard(st) {
     warnBg = "#262015"; warnBd = "#5C4720"; warnTxt = "#FBBF24";
   }
 
-  // 1) SIGNAL 영역 (마감 모드)
+  // 1) BUY SIGNAL 영역 — 포착된 모든 종목 전량 표시
   let signalHtml = "";
   if (mode === "close") {
     if (buySignals.length > 0) {
-      const itemsHtml = buySignals.map(s => `
+      const itemsHtml = buySignals.map(s => {
+        const eng = s.engine || "E1_RS15";
+        const ei = getEngineInfo(eng, s.engine_label);
+        const isY5 = eng === "E3_Y5";
+        const dispName = s.raw_name || stripEnginePrefix(s.name);
+        const stopLbl = isY5 ? "손절 (-20%)" : "래칫 손절";
+        const thirdLbl = isY5 ? "익절 (+7%)" : "RS 점수";
+        const thirdVal = isY5
+          ? `${fmtNum(s.target_price || Math.round(Number(s.price || 0) * 1.07), 0)}원`
+          : `${Number(s.supply_score || 0).toFixed(0)}점`;
+        const ocoStrip = isY5
+          ? `<div class="oco-note">📌 MTS OCO 자동감시: 익절 +7% / 손절 -20% / 40거래일(8주) 만기</div>`
+          : "";
+
+        return `
         <div class="sig-item">
           <div class="sig-stock-row">
-            <span class="sig-name">${esc(s.name)}</span>
+            <span class="eng-pill ${ei.cls}">${esc(ei.label)}</span>
+            <span class="sig-name">${esc(dispName)}</span>
             <span class="sig-code">${esc(s.sector || s.ticker || "")}</span>
           </div>
           <div class="sig-price-row">
@@ -281,28 +352,30 @@ function renderDashboard(st) {
               <div class="m-val green">${Number(s.weight || 0).toFixed(1)}%</div>
             </div>
             <div class="sig-metric">
-              <div class="m-lbl">손절선</div>
+              <div class="m-lbl">${stopLbl}</div>
               <div class="m-val coral">${fmtNum(s.stop, 0)}원</div>
             </div>
             <div class="sig-metric">
-              <div class="m-lbl">RS 점수</div>
-              <div class="m-val cyan">${Number(s.supply_score || 0).toFixed(0)}점</div>
+              <div class="m-lbl">${thirdLbl}</div>
+              <div class="m-val ${isY5 ? "amber" : "cyan"}">${thirdVal}</div>
             </div>
           </div>
-        </div>`).join('<div class="sig-divider"></div>');
+          ${ocoStrip}
+        </div>`;
+      }).join('<div class="sig-divider"></div>');
 
       signalHtml = `
         <section class="card glow-buy">
           <div class="sig-head">
             <div class="sig-title-wrap"><span class="led led-buy"></span><span class="sig-head-txt buy-txt">BUY SIGNAL</span></div>
-            <span class="badge badge-buy">T·RS·A·C PASS</span>
+            <span class="badge badge-buy">TRIPLE-E · ${buySignals.length}건</span>
           </div>
           ${itemsHtml}
         </section>`;
     } else {
       const standbyReason = riskPct <= 0
-        ? "매크로 방어 모드 가동 · 신규 매수 전면 차단"
-        : "조건 T·RS·A·C 동시 충족 없음 · 기존 포지션 래칫 유지";
+        ? "매크로 방어 모드 · 추세(E1·E2) 차단 / 항복줍기(E3) 미포착"
+        : "트리플E(E1·E2·E3) 조건 충족 없음 · 기존 포지션 추적 유지";
       signalHtml = `
         <section class="card glow-standby">
           <div class="sig-head">
@@ -315,29 +388,38 @@ function renderDashboard(st) {
     }
   }
 
-  // 2) 1차 정량 통과 후보 카드 (T + RS + A + C 통과 종목 상세)
+  // 2) 1차 정량 통과 카드 — 포착된 모든 종목 전량 표시 + 엔진별 실제 근거 태그
   let stage1Html = "";
   if (mode === "close" && stage1Passed.length > 0) {
+    const e1Cnt = stage1Passed.filter(x => (x.engine || "E1_RS15") === "E1_RS15").length;
+    const e2Cnt = stage1Passed.filter(x => x.engine === "E2_CF1").length;
+    const e3Cnt = stage1Passed.filter(x => x.engine === "E3_Y5").length;
+
     const s1Items = stage1Passed.map(s => {
+      const eng = s.engine || "E1_RS15";
+      const ei = getEngineInfo(eng, s.engine_label);
+      const isY5 = eng === "E3_Y5";
       const isPass = String(s.status || "").includes("최종 매수 통과");
       const statusCls = isPass ? "pass" : "block";
       const statusTxt = isPass ? "최종 매수 통과" : `2차 차단: ${s.status}`;
+      const rightMetric = isY5
+        ? `<span class="s1-rs amber">60일 ${fmtChg(s.ret60, 1)}</span>`
+        : `<span class="s1-rs">RS ${Number(s.rs || 0).toFixed(0)}점</span>`;
+
       return `
         <div class="s1-item">
           <div class="s1-row1">
-            <span class="s1-name">${esc(s.name)}</span>
+            <div class="s1-left">
+              <span class="eng-pill ${ei.cls}">${esc(ei.label)}</span>
+              <span class="s1-name">${esc(s.name)}</span>
+            </div>
             <span class="s1-sec">${esc(s.sector || "")}</span>
           </div>
           <div class="s1-row2">
             <div><span class="s1-price">${fmtNum(s.price, 0)}원</span> <span class="s1-chg ${chgCls(s.chg)}">${fmtChg(s.chg)}</span></div>
-            <span class="s1-rs">RS ${Number(s.rs || 0).toFixed(0)}점</span>
+            ${rightMetric}
           </div>
-          <div class="s1-tags">
-            <span class="s1-tag">60일선>120일선(T)</span>
-            <span class="s1-tag">60일 ${fmtChg(s.ret60, 1)}(RS)</span>
-            <span class="s1-tag">주황신호(A)</span>
-            <span class="s1-tag">거래대금 ${Number(s.turnover_ratio || 0).toFixed(2)}배(C)</span>
-          </div>
+          <div class="s1-tags">${renderStage1Tags(s)}</div>
           <div class="s1-status ${statusCls}">${esc(statusTxt)}</div>
         </div>`;
     }).join("");
@@ -345,9 +427,10 @@ function renderDashboard(st) {
     stage1Html = `
       <section class="card">
         <div class="s1-head">
-          <div class="card-title">1차 정량 통과 (T·RS·A·C)</div>
+          <div class="card-title">1차 정량 통과 (트리플E)</div>
           <span class="badge-count">${stage1Passed.length}건</span>
         </div>
+        <div class="s1-summary">E1 주도 ${e1Cnt}건 · E2 초입 ${e2Cnt}건 · E3 항복 ${e3Cnt}건</div>
         <div class="s1-list">${s1Items}</div>
       </section>`;
   }
@@ -378,7 +461,7 @@ function renderDashboard(st) {
 
     bottomHtml = `
       <section class="card">
-        <div class="card-title">차기 돌파 대기열 (TOP 3)</div>
+        <div class="card-title">차기 주도주 대기열 (TOP 3)</div>
         <div class="w-list">${wItems}</div>
       </section>`;
   } else if (mode !== "close") {
@@ -398,12 +481,17 @@ function renderDashboard(st) {
 
   let holdHtml = "";
   if (holdReports.length > 0) {
-    const hRows = holdReports.map(h => `
+    const hRows = holdReports.map(h => {
+      const tgtTxt = Number(h.target_price || 0) > 0
+        ? ` · 목표 <span class="green">${fmtNum(h.target_price, 0)}원</span>`
+        : "";
+      return `
       <div class="hold-row">
         <div><b>${esc(h.name)}</b> <span class="${chgCls(h.pnl_pct)}">${fmtChg(h.pnl_pct)}</span></div>
-        <div class="hold-sub">현재 ${fmtNum(h.curr_close, 0)}원 · 손절선 <span class="coral">${fmtNum(h.stop_price, 0)}원</span></div>
-      </div>`).join("");
-    holdHtml = `<section class="card"><div class="card-title">보유 종목 래칫 추적</div>${hRows}</section>`;
+        <div class="hold-sub">현재 ${fmtNum(h.curr_close, 0)}원 · 손절 <span class="coral">${fmtNum(h.stop_price, 0)}원</span>${tgtTxt}</div>
+      </div>`;
+    }).join("");
+    holdHtml = `<section class="card"><div class="card-title">보유 종목 추적</div>${hRows}</section>`;
   }
 
   const futSum = Number(m.es_chg || 0) + Number(m.nq_chg || 0);
@@ -425,7 +513,7 @@ function renderDashboard(st) {
         </div>
       </div>
       <div class="risk-row">
-        <span class="risk-lbl">리스크 허용 (${stSub})</span>
+        <span class="risk-lbl">추세 리스크 (${stSub})</span>
         <span class="risk-val" style="color:${stColor}">${riskPct.toFixed(2)}% / ${maxRiskPct.toFixed(1)}%</span>
       </div>
       <div class="gauge-track"><div class="gauge-fill" style="width:${gaugePct}%;background:${stColor};box-shadow:0 0 12px ${stColor};"></div></div>
@@ -471,7 +559,7 @@ function renderDashboard(st) {
     ${bottomHtml}
 
     <div class="footer">
-      <span>SWING QUANT BOT VER ${esc(verLabel)}</span>
+      <span>SWING QUANT BOT VER ${esc(verLabel)} (TRIPLE-E)</span>
       <button class="refresh-btn" onclick="loadDashboard()">새로고침</button>
     </div>
   </div>`;
